@@ -1,6 +1,13 @@
 # Cursor Position
 
 ## Installation
+You may install the module from [PowerShell Gallery](https://www.powershellgallery.com/packages/CursorPosition).
+
+`Install-Module -Name CursorPosition`
+
+or
+
+`Install-Module -Name CursorPosition -Scope CurrentUser` # for current user only.
 
 
 ## Examples
@@ -26,3 +33,4 @@
 ## Todo
 * Switch to PSobjects from Classes to make it compatible to Version < 5
 * Find an alternative to "$Script:CursorRepository.Id" as it doesn't work in version < 5
+* Implement [xdotool](https://github.com/jordansissel/xdotool) to make it available in Linux and Mac OS 
