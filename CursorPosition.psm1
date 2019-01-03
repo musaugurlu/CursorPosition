@@ -1,60 +1,5 @@
 $Script:CursorRepository = @()
 
-# we are creating this class to standardize to object because we are going to use one function's output in the other function.
-class CursorPosition
-{
-    [int] $Id
-    [string] $Name
-    [int] $X
-    [int] $Y
-    [datetime] $TimeStamp
-
-    CursorPosition([int]$X, [int]$Y)
-    {
-        $this.Id = $this.GetNewId()
-        $this.Name = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-        $this.X = $X
-        $this.Y = $Y
-        $this.TimeStamp = Get-Date
-    }
-
-    CursorPosition([int]$X, [int]$Y, [string]$Name)
-    {
-        $this.Id = $this.GetNewId()
-        $this.Name = $Name
-        $this.X = $X
-        $this.Y = $Y
-        $this.TimeStamp = Get-Date
-    }
-
-    CursorPosition([int]$X, [int]$Y, [string]$Name, [datetime]$TimeStamp)
-    {
-        $this.Id = $this.GetNewId()
-        $this.Name = $Name
-        $this.X = $X
-        $this.Y = $Y
-        $this.TimeStamp = $TimeStamp
-    }
-
-    [int] GetNewId()
-    {
-        [int]$i = 1
-        [bool]$Loop = $true
-        
-        while ($Loop)
-        {
-            if ($Script:CursorRepository.Id -contains $i) 
-            {
-                $i++
-            }
-            else
-            {
-                $Loop = $false
-            }
-        }
-        return $i
-    }
-}
 function Get-Cursor
 {
     [CmdletBinding(DefaultParameterSetName = "Id")]
@@ -76,7 +21,7 @@ function Get-Cursor
     process
     {
         # create an instance of CursorPosition just to standardize the output
-        $Position = [CursorPosition]::new($CurrentPosition.X, $CurrentPosition.Y)
+        $Position = New-CursorObject -X $CurrentPosition.X -Y $CurrentPosition.Y
     }
     
     end
@@ -159,11 +104,11 @@ function Add-Cursor
     {
         if ($Name) 
         {
-            $Cursor = [CursorPosition]::new($X, $Y, $Name)
+            $Cursor = New-CursorObject -Name $Name -X $X -Y $Y
         }
         else 
         {
-            $Cursor = [CursorPosition]::new($X, $Y)
+            $Cursor = New-CursorObject -X $X -Y $Y
         }
 
         $Script:CursorRepository += $Cursor
@@ -213,7 +158,7 @@ function Export-Cursor
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [CursorPosition] $CursorList,
+        [psobject] $CursorList,
         [Parameter(Mandatory = $true)]
         [ValidateScript( {Test-Path $_})]
         [string] $Path,
@@ -287,7 +232,7 @@ function Import-Cursor
         try {
             $Items = Import-Csv -Path $Path
             $Items | ForEach-Object {
-                $Item = [CursorPosition]::new($_.X,$_.Y,$_.Name,[datetime]$_.TimeStamp)
+                $Item = New-CursorObject -X $_.X -Y $_.Y -Name $_.Name -TimeStamp [datetime]($_.TimeStamp)
                 $Script:CursorRepository += $Item
             }
         }
@@ -302,5 +247,78 @@ function Import-Cursor
         {
             Write-Host "$Path has been imported."
         }
+    }
+}
+
+##############################################################################################
+## Helper Functions
+##############################################################################################
+
+function New-CursorObject {
+    [CmdletBinding()]
+    param (
+        [int] $Id = (New-CursorID),
+        [string] $Name = (Get-Date -Format "yyyy-MM-dd HH:mm:ss"),
+        [int] $X,
+        [int] $Y,
+        [datetime] $TimeStamp = (Get-Date)
+    )
+    
+    begin {
+        $CursorObject = New-Object -TypeName psobject
+    }
+    
+    process {
+        $CursorObject | Add-Member -NotePropertyName "Id" -NotePropertyValue $Id
+        $CursorObject | Add-Member -NotePropertyName "Name" -NotePropertyValue $Name
+        $CursorObject | Add-Member -NotePropertyName "X" -NotePropertyValue $X
+        $CursorObject | Add-Member -NotePropertyName "Y" -NotePropertyValue $Y
+        $CursorObject | Add-Member -NotePropertyName "TimeStamp" -NotePropertyValue $TimeStamp
+    }
+    
+    end {
+        Write-Output $CursorObject
+    }
+}
+
+function New-CursorID {
+    [CmdletBinding()]
+    param (
+        
+    )
+    
+    begin {
+        [int]$i = 1
+        [bool]$Loop = $true
+    }
+    
+    process {
+        function CheckId($id)
+        {
+            $check = $false
+            for ($j = 0; $j -lt $Script:CursorRepository.Count; $j++) {
+                if ($Script:CursorRepository[$j].id -eq $id) {
+                    $check = $true
+                }                
+            }
+
+            return [bool] $check
+        }
+
+        while ($Loop)
+        {
+            if (CheckId($i)) 
+            {
+                $i++
+            }
+            else
+            {
+                $Loop = $false
+            }
+        }
+    }
+    
+    end {
+        return [int] $i
     }
 }

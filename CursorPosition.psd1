@@ -12,7 +12,7 @@
 RootModule = 'CursorPosition.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0'
+ModuleVersion = '2.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @(
@@ -35,7 +35,7 @@ Copyright = 'Musa Ugurlu 2018'
 Description = 'allow to add,save,remove,get and set Cursor Positions. Works only with Powershell Version 5.1 for now'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1'
+# PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -107,10 +107,10 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        # Tags = @('cursor','mouse','position')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://raw.githubusercontent.com/musaugurlu/CursorPosition/master/LICENSE'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/musaugurlu/CursorPosition'
@@ -119,7 +119,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        # ReleaseNotes = 'Classes Removed. So it is now compatible with PS version < 5'
 
     } # End of PSData hashtable
 
